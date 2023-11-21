@@ -1,20 +1,19 @@
 import enum
 
-from sqlalchemy import Column, String, Enum
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.dialects.postgresql import UUID
 
-from . import enums
-from app.database import Base
+from src.database import Base
 import uuid
 
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, index=True)
     phone_number = Column(String, unique=True, nullable=True)
     name = Column(String)
     surname = Column(String)
     patronymic = Column(String, nullable=True)
-    role = Column(Enum(enums.Role))
+    role = Column(String)
     hashed_password = Column(String)

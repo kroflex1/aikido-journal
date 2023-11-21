@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Header, HTTPException
 
-from app.database import SessionLocal
+from src.database import SessionLocal
 
 
 def get_db():

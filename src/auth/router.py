@@ -4,14 +4,12 @@ from sqlalchemy.orm import Session
 
 from . import crud, schemas
 from .dependencies import get_db
+
 # from ..database import engine
 
 router = APIRouter(
     prefix="/users",
     tags=["User"])
-
-
-# models.Base.metadata.create_all(bind=engine)
 
 
 @router.post("/create", response_model=schemas.User)

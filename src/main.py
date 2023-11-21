@@ -1,7 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 from auth.router import router as auth_router
+from src.auth import models
+from src.database import engine
+
 app = FastAPI()
+# models.Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
 
