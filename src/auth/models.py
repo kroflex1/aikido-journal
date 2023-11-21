@@ -1,3 +1,5 @@
+import uuid
+
 import peewee
 
 from src.database import db
