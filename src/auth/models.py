@@ -1,19 +1,15 @@
-import enum
+import peewee
 
-from sqlalchemy import Column, String, Integer
-from sqlalchemy.dialects.postgresql import UUID
-
-from src.database import Base
-import uuid
+from src.database import db
 
 
-class User(Base):
-    __tablename__ = "user"
+class User(peewee.Model):
+    phone_number = peewee.CharField(unique=True, null=True, index=True)
+    name = peewee.CharField()
+    surname = peewee.CharField
+    patronymic = peewee.CharField(null=True)
+    role = peewee.CharField
+    hashed_password = peewee.CharField()
 
-    id = Column(Integer, primary_key=True, index=True)
-    phone_number = Column(String, unique=True, nullable=True)
-    name = Column(String)
-    surname = Column(String)
-    patronymic = Column(String, nullable=True)
-    role = Column(String)
-    hashed_password = Column(String)
+    class Meta:
+        database = db
