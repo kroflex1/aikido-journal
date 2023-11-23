@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status, Header
+from typing import Annotated
+
+from fastapi import APIRouter, status, Header, Form
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
@@ -28,9 +30,8 @@ def create_user(user: schemas.UserCreate):
 
 
 @router.post("/login", response_model=schemas.Token, dependencies=[Depends(get_db)])
-def login(user_inf: schemas.UserIn):
-    db_user = crud.get_user_by_phone_number_and_password(phone_number=user_inf.phone_number,
-                                                         password=user_inf.password)
+def login(phone_number: Annotated[str, Form()], password: Annotated[str, Form()]):
+    db_user = crud.get_user_by_phone_number_and_password(phone_number=phone_number, password=password)
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid phone number or password")
     return schemas.Token(token=TokenManager.create_token(db_user.id, db_user.role))
