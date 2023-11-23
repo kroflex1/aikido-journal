@@ -14,7 +14,6 @@ class TokenManager:
 
     @staticmethod
     def create_token(user_id: int, user_role: str):
-        t = str(user_role)
         to_encode = {"user_id": str(user_id), "user_role": str(user_role),
                      "exp": datetime.utcnow() + timedelta(minutes=TokenManager.__ACCESS_TOKEN_EXPIRE_MINUTES)}
         encoded_jwt = jwt.encode(to_encode, TokenManager.__SECRET_KEY, algorithm=TokenManager.__ALGORITHM)

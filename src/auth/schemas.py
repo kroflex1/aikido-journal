@@ -22,7 +22,8 @@ class PeeweeGetterDict(GetterDict):
 
 
 class Token(BaseModel):
-    token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM")
+    access_token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM")
+    token_type: str = Field(example="bearer")
 
 
 class UserBase(BaseModel):
@@ -31,6 +32,9 @@ class UserBase(BaseModel):
     surname: str = Field("Bersov")
     patronymic: str | None = Field(default=None, examples=["Alexanrov"])
     role: Role
+
+    class Config:
+        use_enum_values = True
 
 
 class UserCreate(UserBase):
