@@ -25,16 +25,12 @@ class Time(BaseModel):
     start: datetime
     end: datetime
 
+
 class GroupCreate(BaseModel):
     name: str
     price: int
     days: list[Time | None]
 
-class Schedule(BaseModel):
-    monday: Time | None
-    tuesday: Time | None
-    wednesday: Time | None
-    thursday: Time | None
-    friday: Time | None
-    saturday: Time | None
-    sunday: Time | None
+
+class Group(GroupCreate):
+    coach_id: int

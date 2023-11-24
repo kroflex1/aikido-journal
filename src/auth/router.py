@@ -1,12 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Header, Form
+from fastapi import APIRouter, status
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError
 
-from . import crud, schemas, models
 from src.dependencies import get_db
+from . import crud, schemas, models
 from .utilities import TokenManager
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
@@ -36,7 +35,6 @@ async def create_user(user: schemas.UserCreate):
     if db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This user is already registered")
     db_user = crud.create_user(user=user)
-    x = TokenManager.create_token(db_user.id, db_user.role)
     return schemas.Token(access_token=TokenManager.create_token(db_user.id, db_user.role), token_type="bearer")
 
 
