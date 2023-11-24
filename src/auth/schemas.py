@@ -52,39 +52,3 @@ class User(UserBase):
     class Config:
         orm_mode = True
         getter_dict = PeeweeGetterDict
-
-
-class Child(BaseModel):
-    name: str
-    surname: str
-    patronymic: str | None = None
-
-
-class Coach(BaseModel):
-    phone_number: str
-    name: str
-    surname: str
-    patronymic: str | None = None
-
-
-class Time(BaseModel):
-    start: datetime
-    end: datetime
-
-
-class Schedule(BaseModel):
-    monday: Time | None
-    tuesday: Time | None
-    wednesday: Time | None
-    thursday: Time | None
-    friday: Time | None
-    saturday: Time | None
-    sunday: Time | None
-
-
-class Group(BaseModel):
-    name: str
-    price: int
-    coach: Coach
-    children: list[Child]
-    schedule: Schedule
