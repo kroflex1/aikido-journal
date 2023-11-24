@@ -1,8 +1,13 @@
 from src.group import schemas, models
+from src.auth import models as user_models
 
 
 def get_group_by_name(group_name: str) -> models.Group:
-    return models.Group.filter(models.Group.name == group_name).first()
+    return models.Group.get(models.Group.name == group_name)
+
+
+def get_names_of_groups_that_lead_by_coach(coach_db: user_models.User):
+    return [group.name for group in list(coach_db.groups)]
 
 
 def create_group(group_create: schemas.GroupCreate, coach_id: int) -> models.Group:

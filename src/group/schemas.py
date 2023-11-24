@@ -25,5 +25,5 @@ class GroupCreate(BaseModel):
     days: list[Time | None] = Field(min_items=7, max_items=7)
 
 
-class Group(GroupCreate):
+class GroupInf(GroupCreate):
     coach_id: int
