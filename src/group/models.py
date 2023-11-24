@@ -1,5 +1,3 @@
-import uuid
-
 import peewee
 
 from src.auth import models

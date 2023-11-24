@@ -1,16 +1,20 @@
 import uvicorn
 from fastapi import FastAPI
+
+from auth import models as auth_models
 from auth.router import router as auth_router
+from group import models as group_models
+from group.router import router as group_router
 from src import database
-from src.auth import models
 
 database.db.connect()
-database.db.create_tables([models.User])
+database.db.create_tables([auth_models.User, group_models.Group])
 database.db.close()
 
 app = FastAPI()
 
 app.include_router(auth_router)
+app.include_router(group_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
