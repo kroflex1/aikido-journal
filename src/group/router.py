@@ -36,7 +36,7 @@ async def create_group(group: schemas.GroupCreate, coach: Annotated[models.User,
                             days=get_days_as_list_from_group_model(db_group))
 
 
-@router.get("/inf/{group_name}", dependencies=[Depends(get_db)],
+@router.get("/{group_name}/inf", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, response_model=schemas.GroupInf)
 async def get_information_about_group(group_name: str, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)

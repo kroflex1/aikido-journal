@@ -9,7 +9,6 @@ from pydantic.v1.utils import GetterDict
 class Role(str, Enum):
     coach = 'coach'
     parent = 'parent'
-    student = 'student'
 
 
 class PeeweeGetterDict(GetterDict):
