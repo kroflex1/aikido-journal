@@ -1,16 +1,9 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
 import peewee
 from pydantic import BaseModel, Field
 from pydantic.v1.utils import GetterDict
-
-
-class Role(str, Enum):
-    coach = 'coach'
-    parent = 'parent'
-    student = 'student'
 
 
 class PeeweeGetterDict(GetterDict):
@@ -27,9 +20,9 @@ class Time(BaseModel):
 
 
 class GroupCreate(BaseModel):
-    name: str
-    price: int
-    days: list[Time | None]
+    name: str = Field(examples=["АТ-01"])
+    price: int = Field(examples=[250])
+    days: list[Time | None] = Field(min_items=7, max_items=7)
 
 
 class Group(GroupCreate):

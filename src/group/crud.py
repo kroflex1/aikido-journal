@@ -50,5 +50,5 @@ def create_group(group_create: schemas.GroupCreate, coach_id: int) -> models.Gro
                             friday_start=friday_start, friday_end=friday_end,
                             saturday_start=saturday_start, saturday_end=saturday_end,
                             sunday_start=sunday_start, sunday_end=sunday_end)
-    db_group.save()
+    db_group.save(force_insert=True)
     return db_group

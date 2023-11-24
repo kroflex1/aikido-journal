@@ -8,7 +8,8 @@ from group.router import router as group_router
 from src import database
 
 database.db.connect()
-database.db.create_tables([auth_models.User, group_models.Group])
+database.db.create_tables([auth_models.User])
+database.db.create_tables([group_models.Group])
 database.db.close()
 
 app = FastAPI()
