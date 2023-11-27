@@ -21,5 +21,6 @@ class ChildCreate(BaseModel):
 
 
 class Child(ChildCreate):
+    id: int
     parent_id: int | None
     group_name: str | None
