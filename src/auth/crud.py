@@ -5,12 +5,13 @@ from . import models, schemas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_user_by_id(user_id: int) -> models.User:
-    return models.User.filter(models.User.id == user_id).first()
+def get_user_by_id(user_id: int) -> models.User | None:
+    return models.User.get_or_none(models.User.id == user_id)
 
 
-def get_user_by_phone_number(phone_number: str) -> models.User:
-    return models.User.filter(models.User.phone_number == phone_number).first()
+
+def get_user_by_phone_number(phone_number: str) -> models.User | None:
+    return  models.User.get_or_none(models.User.phone_number == phone_number)
 
 
 def get_user_by_phone_number_and_password(phone_number: str, password: str) -> models.User:

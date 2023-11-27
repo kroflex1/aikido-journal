@@ -32,9 +32,10 @@ async def create_child(child: schemas.ChildCreate, coach: Annotated[user_models.
 
 @router.post("/remove/{child_id}", dependencies=[Depends(get_db)],
              status_code=status.HTTP_200_OK)
-async def remove_child(child_id: int, coach: Annotated[user_models.User, Depends(is_coach)]):
+async def delete_child(child_id: int, coach: Annotated[user_models.User, Depends(is_coach)]):
     get_child_by_id(child_id=child_id)
     crud.remove_child(child_id)
+    return "Child successfully deleted"
 
 
 @router.get("/get/{child_id}", dependencies=[Depends(get_db)],

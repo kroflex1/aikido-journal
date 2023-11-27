@@ -5,6 +5,7 @@ from pydantic.v1.utils import GetterDict
 from src.auth import schemas as user_schemas
 from src.child import schemas as child_schemas
 
+
 class PeeweeGetterDict(GetterDict):
     def get(self, key: Any, default: Any = None):
         res = getattr(self._obj, key, default)
@@ -13,5 +14,6 @@ class PeeweeGetterDict(GetterDict):
         return res
 
 
-
-
+class Parent(user_schemas.User):
+    children: list[child_schemas.Child] | None
+    
