@@ -2,8 +2,8 @@ from src.group import schemas, models
 from src.auth import models as user_models
 
 
-def get_group_by_name(group_name: str) -> models.Group:
-    return models.Group.get(models.Group.name == group_name)
+def get_group_by_name(group_name: str) -> models.Group | None:
+    return models.Group.get_or_none(models.Group.name == group_name)
 
 
 def get_names_of_groups_that_lead_by_coach(coach_db: user_models.User):

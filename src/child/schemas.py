@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any
 
 import peewee
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from pydantic.v1.utils import GetterDict
 
 
@@ -23,4 +23,8 @@ class ChildCreate(BaseModel):
 class Child(ChildCreate):
     id: int
     parent_id: int | None
-    group_name: str | None
+    group_name_id: str | None
+
+    class Config:
+        orm_mode = True
+        getter_dict = PeeweeGetterDict

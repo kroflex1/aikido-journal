@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException
 from src.auth import models
 from src.auth.router import get_current_user
 from src.dependencies import get_db
+from src.child import crud as child_crud
 from . import crud, schemas
 from .utilities import get_days_as_list_from_group_model
 
@@ -36,7 +37,7 @@ async def create_group(group: schemas.GroupCreate, coach: Annotated[models.User,
                             days=get_days_as_list_from_group_model(db_group))
 
 
-@router.get("/{group_name}/inf", dependencies=[Depends(get_db)],
+@router.get("/get/{group_name}", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, response_model=schemas.GroupInf)
 async def get_information_about_group(group_name: str, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)
@@ -45,6 +46,25 @@ async def get_information_about_group(group_name: str, coach: Annotated[models.U
                             detail="There is no group with this name")
     return schemas.GroupInf(name=db_group.name, price=db_group.price, coach_id=coach.id,
                             days=get_days_as_list_from_group_model(db_group))
+
+
+@router.get("/{group_name}/add_child/{child_id}", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK)
+async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
+    db_group = crud.get_group_by_name(group_name=group_name)
+    db_child = child_crud.get_child_by_id(child_id)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    if db_child is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    if db_child.group_name is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"This child is already in the group '{db_child.group_name.name}'")
+    db_child.group_name = db_group
+    db_child.save()
+    return "Child has been successfully added to the group"
 
 
 @router.get("/leads", dependencies=[Depends(get_db)],
