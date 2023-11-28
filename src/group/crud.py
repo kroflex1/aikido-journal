@@ -1,5 +1,6 @@
 from src.group import schemas, models
 from src.auth import models as user_models
+from fastapi import HTTPException, status
 
 
 def get_group_by_name(group_name: str) -> models.Group | None:
@@ -8,6 +9,18 @@ def get_group_by_name(group_name: str) -> models.Group | None:
 
 def get_names_of_groups_that_lead_by_coach(coach_db: user_models.User):
     return [group.name for group in list(coach_db.groups)]
+
+
+def remove_group(group_name: str):
+    db_group = models.Group.get_or_none(models.Group.name == group_name)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    db_children = list(db_group.children)
+    for db_child in db_children:
+        db_child.group_name = None
+        db_child.save()
+    db_group.delete_instance()
 
 
 def create_group(group_create: schemas.GroupCreate, coach_id: int) -> models.Group:

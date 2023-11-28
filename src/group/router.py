@@ -48,6 +48,13 @@ async def get_information_about_group(group_name: str, coach: Annotated[models.U
                             days=get_days_as_list_from_group_model(db_group))
 
 
+@router.get("/remove/{group_name}", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK)
+async def remove_group(group_name: str, strcoach: Annotated[models.User, Depends(is_coach)]):
+    crud.remove_group(group_name)
+    return "Group has been successfully remove"
+
+
 @router.get("/{group_name}/add_child/{child_id}", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK)
 async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
