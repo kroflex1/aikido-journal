@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Form
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 
 from src.dependencies import get_db
 from . import crud, schemas, models
@@ -39,8 +39,8 @@ async def create_user(user: schemas.UserCreate):
 
 
 @router.post("/login", dependencies=[Depends(get_db)], response_model=schemas.Token)
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    db_user = crud.get_user_by_phone_number_and_password(phone_number=form_data.username, password=form_data.password)
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
+    db_user = crud.get_user_by_phone_number_and_password(phone_number=username, password=password)
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid phone number or password")
     return schemas.Token(access_token=TokenManager.create_token(db_user.id, db_user.role), token_type="bearer")
