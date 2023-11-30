@@ -20,8 +20,8 @@ class PeeweeGetterDict(GetterDict):
 
 
 class Token(BaseModel):
-    access_token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM")
-    token_type: str = Field(example="bearer")
+    access_token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM", alias="accessToken")
+    token_type: str = Field(example="bearer", alias="tokenType")
 
 
 class UserBase(BaseModel):
