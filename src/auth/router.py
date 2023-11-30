@@ -42,7 +42,7 @@ async def create_user(user: schemas.UserCreate):
 async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
     db_user = crud.get_user_by_phone_number_and_password(phone_number=username, password=password)
     if db_user is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid phone number or password")
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid phone number or password")
     return schemas.Token(access_token=TokenManager.create_token(db_user.id, db_user.role), token_type="bearer")
 
 
