@@ -20,12 +20,12 @@ class PeeweeGetterDict(GetterDict):
 
 
 class Token(BaseModel):
-    access_token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM", alias="accessToken")
-    token_type: str = Field(example="bearer", alias="tokenType")
+    access_token: str = Field(example="eyJhbGciOiJIU.eyJleHAiOiIxMjM0NTY3.-Wp-D4EWy79DFM")
+    token_type: str = Field(example="bearer")
 
 
 class UserBase(BaseModel):
-    phone_number: str = Field("+79127564382", alias="phoneNumber")
+    phone_number: str = Field("+79127564382")
     name: str = Field("Vova")
     surname: str = Field("Bersov")
     patronymic: str | None = Field(default=None, examples=["Alexanrov"])
@@ -40,7 +40,7 @@ class UserCreate(UserBase):
 
 
 class UserIn(BaseModel):
-    phone_number: str = Field("+79127564382", alias="phoneNumber")
+    phone_number: str = Field("+79127564382")
     password: str = Field("somepassword")
 
 
