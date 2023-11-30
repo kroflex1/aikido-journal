@@ -25,7 +25,7 @@ class Token(BaseModel):
 
 
 class UserBase(BaseModel):
-    phone_number: str = Field("+79127564382")
+    phone_number: str = Field("+79127564382", alias="phoneNumber")
     name: str = Field("Vova")
     surname: str = Field("Bersov")
     patronymic: str | None = Field(default=None, examples=["Alexanrov"])
@@ -40,7 +40,7 @@ class UserCreate(UserBase):
 
 
 class UserIn(BaseModel):
-    phone_number: str = Field("+79127564382")
+    phone_number: str = Field("+79127564382", alias="phoneNumber")
     password: str = Field("somepassword")
 
 

@@ -22,8 +22,8 @@ class ChildCreate(BaseModel):
 
 class Child(ChildCreate):
     id: int
-    parent_id: int | None
-    group_name_id: str | None
+    parent_id: int | None = Field(default=None, alias="ParentId")
+    group_name_id: str | None = Field(default=None, alias="groupNameId")
 
     class Config:
         orm_mode = True
