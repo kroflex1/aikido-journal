@@ -11,6 +11,10 @@ def get_all_children() -> list[models.Child]:
     return [child for child in models.Child.select()]
 
 
+def get_children_without_parent() -> list[models.Child]:
+    return [child for child in models.Child.select().where(models.Child.parent == None)]
+
+
 def remove_child(id: int):
     db_child = get_child_by_id(id)
     db_child.delete_instance()

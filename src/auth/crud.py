@@ -24,7 +24,7 @@ def get_user_by_phone_number_and_password(phone_number: str, password: str) -> m
 
 def create_user(user: schemas.UserCreate) -> models.User:
     fake_hashed_password = pwd_context.hash(user.password)
-    db_user = models.User(phone_number=user.phone_number, name=user.phone_number, surname=user.surname,
+    db_user = models.User(phone_number=user.phone_number, name=user.name, surname=user.surname,
                           patronymic=user.patronymic, role=user.role, hashed_password=fake_hashed_password)
 
     db_user.save()

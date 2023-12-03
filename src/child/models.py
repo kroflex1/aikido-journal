@@ -11,7 +11,7 @@ class Child(peewee.Model):
                                         column_name="group_name")
     name = peewee.CharField()
     surname = peewee.CharField()
-    patronymic = peewee.CharField()
+    patronymic = peewee.CharField(null=True)
 
     class Meta:
         database = db
