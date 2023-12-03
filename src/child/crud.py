@@ -22,10 +22,10 @@ def remove_child(id: int):
 
 def get_child_by_name(name: str, surname: str, patronymic: str) -> models.Child | None:
     if patronymic is None:
-        child_db = models.Child.get_or_none(models.Child.name == name and models.Child.surname == surname)
+        child_db = models.Child.get_or_none((models.Child.name == name) & (models.Child.surname == surname))
     else:
         child_db = models.Child.get_or_none(
-            models.Child.name == name and models.Child.surname == surname and models.Child.patronymic == patronymic)
+            (models.Child.name == name) & (models.Child.surname == surname) & (models.Child.patronymic == patronymic))
     return child_db
 
 
