@@ -9,9 +9,8 @@ def get_user_by_id(user_id: int) -> models.User | None:
     return models.User.get_or_none(models.User.id == user_id)
 
 
-
 def get_user_by_phone_number(phone_number: str) -> models.User | None:
-    return  models.User.get_or_none(models.User.phone_number == phone_number)
+    return models.User.get_or_none(models.User.phone_number == phone_number)
 
 
 def get_user_by_phone_number_and_password(phone_number: str, password: str) -> models.User | None:
@@ -19,7 +18,6 @@ def get_user_by_phone_number_and_password(phone_number: str, password: str) -> m
     if db_user is not None and pwd_context.verify(password, db_user.hashed_password):
         return db_user
     return None
-
 
 
 def create_user(user: schemas.UserCreate) -> models.User:

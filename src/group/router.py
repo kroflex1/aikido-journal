@@ -74,6 +74,28 @@ async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[mo
     return "Child has been successfully added to the group"
 
 
+@router.get("/{group_name}/remove_child/{child_id}", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK)
+async def remove_child_from_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
+    db_group = crud.get_group_by_name(group_name=group_name)
+    db_child = child_crud.get_child_by_id(child_id)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    if db_child is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    if db_child.group_name is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="This child does not belong to any group")
+    if db_child.group_name.name != db_group.name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"This child is in another group '{db_child.group_name.name}'")
+    db_child.group_name = None
+    db_child.save()
+    return "Child has been successfully remove from group"
+
+
 @router.get("/leads", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, description="Returns the names of the groups led by coach",
             response_model=list[str])
