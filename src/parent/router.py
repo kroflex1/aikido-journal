@@ -36,6 +36,31 @@ async def add_child_to_parent(parent_id: int, child_id: int, coach: Annotated[us
     return db_parent
 
 
+@router.get("/{parent_id}/remove_child/{child_id}", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK)
+async def add_child_to_parent(parent_id: int, child_id: int, coach: Annotated[user_models.User, Depends(is_coach)]):
+    db_parent = user_crud.get_user_by_id(parent_id)
+    db_child = child_crud.get_child_by_id(child_id)
+    if db_parent is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no parent with this id")
+    if db_child is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    if db_parent.role != "parent":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Child can only be added to a user with the 'parent' role")
+    if db_child.parent is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"This child does not have a parent")
+    if db_child.parent.id != db_parent.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"This child has a different parent by id {db_child.parent.id}")
+    db_child.parent = None
+    db_child.save()
+    return "Child has been successfully remove from parent"
+
+
 @router.get("/all", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, response_model=list[schemas.Parent])
 async def get_all_parents(coach: Annotated[user_models.User, Depends(is_coach)]):
