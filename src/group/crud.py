@@ -1,15 +1,15 @@
-from src.group import schemas, models
-from src.auth import models as user_models
 from fastapi import HTTPException, status
+
+from src.auth import models as user_models
+from src.group import schemas, models
 
 
 def get_group_by_name(group_name: str) -> models.Group | None:
     return models.Group.get_or_none(models.Group.name == group_name)
 
 
-def get_names_of_groups_that_lead_by_coach(coach_db: user_models.User):
-    return [group.name for group in list(coach_db.groups)]
-
+def get_groups_that_led_by_coach(coach_db: user_models.User) -> list[models.Group]:
+    return [group for group in list(coach_db.groups)]
 
 def remove_group(group_name: str):
     db_group = models.Group.get_or_none(models.Group.name == group_name)

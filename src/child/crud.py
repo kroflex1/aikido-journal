@@ -11,6 +11,10 @@ def get_all_children() -> list[models.Child]:
     return [child for child in models.Child.select()]
 
 
+def get_children_at_group(group_name: str) -> list[models.Child]:
+    return [child for child in models.Child.select().where(models.Child.group_name== group_name)]
+
+
 def get_children_without_parent() -> list[models.Child]:
     return [child for child in models.Child.select().where(models.Child.parent == None)]
 

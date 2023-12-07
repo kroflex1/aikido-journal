@@ -1,4 +1,20 @@
 from . import models, schemas
+from src.child import crud as child_crud
+from src.child import schemas as child_schemas
+
+
+def convert_group_model_to_schema(db_group: models.Group) -> schemas.GroupInf:
+    children_at_group = child_crud.get_children_at_group(db_group.name)
+    children_schemas = [
+        child_schemas.Child(id=db_child.id,
+                            parent_id=db_child.parent_id,
+                            group_name_id=db_child.group_name_id,
+                            name=db_child.name,
+                            surname=db_child.surname,
+                            patronymic=db_child.patronymic) for
+        db_child in children_at_group]
+    return schemas.GroupInf(name=db_group.name, price=db_group.price, coach_id=db_group.coach.id,
+                            days=get_days_as_list_from_group_model(db_group), children=children_schemas)
 
 
 def get_days_as_list_from_group_model(group: models.Group) -> list[schemas.Time]:

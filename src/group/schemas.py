@@ -4,6 +4,7 @@ from typing import Any
 import peewee
 from pydantic import BaseModel, Field
 from pydantic.v1.utils import GetterDict
+from src.child import schemas as child_schemas
 
 
 class PeeweeGetterDict(GetterDict):
@@ -27,3 +28,4 @@ class GroupCreate(BaseModel):
 
 class GroupInf(GroupCreate):
     coach_id: int
+    children: list[child_schemas.Child]

@@ -8,7 +8,7 @@ from src.auth.router import get_current_user
 from src.dependencies import get_db
 from src.child import crud as child_crud
 from . import crud, schemas
-from .utilities import get_days_as_list_from_group_model
+from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema
 
 router = APIRouter(
     prefix="/groups",
@@ -33,8 +33,7 @@ async def create_group(group: schemas.GroupCreate, coach: Annotated[models.User,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Group with this name has already been created")
     db_group = crud.create_group(group_create=group, coach_id=coach.id)
-    return schemas.GroupInf(name=db_group.name, price=db_group.price, coach_id=coach.id,
-                            days=get_days_as_list_from_group_model(db_group))
+    return convert_group_model_to_schema(db_group)
 
 
 @router.get("/get/{group_name}", dependencies=[Depends(get_db)],
@@ -98,6 +97,9 @@ async def remove_child_from_group(group_name: str, child_id: int, coach: Annotat
 
 @router.get("/leads", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, description="Returns the names of the groups led by coach",
-            response_model=list[str])
-async def get_available_groups(coach: Annotated[models.User, Depends(is_coach)]):
-    return crud.get_names_of_groups_that_lead_by_coach(coach)
+            response_model=list[schemas.GroupInf])
+async def get_groups_that_led_by_coach(coach: Annotated[models.User, Depends(is_coach)]):
+    result = []
+    for db_group in crud.get_groups_that_led_by_coach(coach):
+        result.append(convert_group_model_to_schema(db_group))
+    return result
