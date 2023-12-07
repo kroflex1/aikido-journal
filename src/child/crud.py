@@ -18,6 +18,9 @@ def get_children_at_group(group_name: str) -> list[models.Child]:
 def get_children_without_parent() -> list[models.Child]:
     return [child for child in models.Child.select().where(models.Child.parent == None)]
 
+def get_children_without_group() -> list[models.Child]:
+    return [child for child in models.Child.select().where(models.Child.group_name == None)]
+
 
 def remove_child(id: int):
     db_child = get_child_by_id(id)

@@ -53,3 +53,8 @@ async def get_all_children(coach: Annotated[user_models.User, Depends(is_coach)]
             status_code=status.HTTP_200_OK, response_model=list[schemas.Child])
 async def get_children_without_parent(coach: Annotated[user_models.User, Depends(is_coach)]):
     return crud.get_children_without_parent()
+
+@router.get("/children_without_group", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, response_model=list[schemas.Child])
+async def get_children_without_parent(coach: Annotated[user_models.User, Depends(is_coach)]):
+    return crud.get_children_without_group()
