@@ -5,8 +5,9 @@ from fastapi import Depends, HTTPException
 
 from src.auth import models
 from src.auth.router import get_current_user
-from src.dependencies import get_db
 from src.child import crud as child_crud
+from src.child import schemas as child_schemas
+from src.dependencies import get_db
 from . import crud, schemas
 from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema
 
@@ -49,13 +50,13 @@ async def get_information_about_group(group_name: str, coach: Annotated[models.U
 
 @router.get("/remove/{group_name}", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK)
-async def remove_group(group_name: str, strcoach: Annotated[models.User, Depends(is_coach)]):
+async def remove_group(group_name: str, coach: Annotated[models.User, Depends(is_coach)]):
     crud.remove_group(group_name)
     return "Group has been successfully remove"
 
 
 @router.get("/{group_name}/add_child/{child_id}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
 async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)
     db_child = child_crud.get_child_by_id(child_id)
@@ -70,11 +71,11 @@ async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[mo
                             detail=f"This child is already in the group '{db_child.group_name.name}'")
     db_child.group_name = db_group
     db_child.save()
-    return "Child has been successfully added to the group"
+    return db_child
 
 
 @router.get("/{group_name}/remove_child/{child_id}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
 async def remove_child_from_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)
     db_child = child_crud.get_child_by_id(child_id)
@@ -92,7 +93,7 @@ async def remove_child_from_group(group_name: str, child_id: int, coach: Annotat
                             detail=f"This child is in another group '{db_child.group_name.name}'")
     db_child.group_name = None
     db_child.save()
-    return "Child has been successfully remove from group"
+    return db_child
 
 
 @router.get("/leads", dependencies=[Depends(get_db)],
