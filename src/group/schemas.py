@@ -26,6 +26,12 @@ class GroupCreate(BaseModel):
     days: list[Time | None] = Field(min_items=7, max_items=7)
 
 
+class GroupChange(BaseModel):
+    new_name: str | None
+    new_price: int | None
+    new_days: list[Time | None] | None = Field(min_items=7, max_items=7)
+
+
 class GroupInf(GroupCreate):
     coach_id: int
     children: list[child_schemas.Child]

@@ -48,15 +48,25 @@ async def get_information_about_group(group_name: str, coach: Annotated[models.U
                             days=get_days_as_list_from_group_model(db_group))
 
 
-@router.get("/remove/{group_name}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK)
+@router.get("/leads", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, description="Returns the names of the groups led by coach",
+            response_model=list[schemas.GroupInf])
+async def get_groups_that_led_by_coach(coach: Annotated[models.User, Depends(is_coach)]):
+    result = []
+    for db_group in crud.get_groups_that_led_by_coach(coach):
+        result.append(convert_group_model_to_schema(db_group))
+    return result
+
+
+@router.post("/remove/{group_name}", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK)
 async def remove_group(group_name: str, coach: Annotated[models.User, Depends(is_coach)]):
     crud.remove_group(group_name)
     return "Group has been successfully remove"
 
 
-@router.get("/{group_name}/add_child/{child_id}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
+@router.post("/{group_name}/add_child/{child_id}", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
 async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)
     db_child = child_crud.get_child_by_id(child_id)
@@ -74,8 +84,8 @@ async def add_child_to_group(group_name: str, child_id: int, coach: Annotated[mo
     return db_child
 
 
-@router.get("/{group_name}/remove_child/{child_id}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
+@router.post("/{group_name}/remove_child/{child_id}", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK, response_model=child_schemas.Child)
 async def remove_child_from_group(group_name: str, child_id: int, coach: Annotated[models.User, Depends(is_coach)]):
     db_group = crud.get_group_by_name(group_name=group_name)
     db_child = child_crud.get_child_by_id(child_id)
@@ -96,11 +106,13 @@ async def remove_child_from_group(group_name: str, child_id: int, coach: Annotat
     return db_child
 
 
-@router.get("/leads", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK, description="Returns the names of the groups led by coach",
-            response_model=list[schemas.GroupInf])
-async def get_groups_that_led_by_coach(coach: Annotated[models.User, Depends(is_coach)]):
-    result = []
-    for db_group in crud.get_groups_that_led_by_coach(coach):
-        result.append(convert_group_model_to_schema(db_group))
-    return result
+@router.post("/{group_name}/set_parameters", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK, response_model=schemas.GroupInf)
+async def set_new_parameters_for_group(group_name: str, new_group_parameters: schemas.GroupChange,
+                                       coach: Annotated[models.User, Depends(is_coach)]):
+    db_group = crud.get_group_by_name(group_name)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    db_group = crud.set_new_parameters(group_name, new_group_parameters)
+    return convert_group_model_to_schema(db_group)

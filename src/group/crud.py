@@ -11,6 +11,35 @@ def get_group_by_name(group_name: str) -> models.Group | None:
 def get_groups_that_led_by_coach(coach_db: user_models.User) -> list[models.Group]:
     return [group for group in list(coach_db.groups)]
 
+
+def set_new_price_for_group(group_name: str, price: int):
+    db_group = get_group_by_name(group_name)
+    db_group.price = price
+    db_group.save()
+
+
+def set_new_parameters(group_name: str, group_change: schemas.GroupChange) -> models.Group:
+    db_group = get_group_by_name(group_name)
+    if group_change.new_price is not None:
+        db_group.price = group_change.new_price
+        db_group.save()
+    if group_change.new_days is not None:
+        set_days_for_group(db_group, group_change.new_days)
+        db_group.save()
+    if group_change.new_name is not None:
+        children = list(db_group.children)
+        for child in children:
+            child.group_name = None
+            child.save()
+        models.Group.update(name=group_change.new_name).where(models.Group.name == group_name).execute()
+        db_group = get_group_by_name(group_change.new_name)
+        for child in children:
+            child.group_name = db_group
+            child.save()
+    db_group.save()
+    return db_group
+
+
 def remove_group(group_name: str):
     db_group = models.Group.get_or_none(models.Group.name == group_name)
     if db_group is None:
@@ -70,3 +99,27 @@ def create_group(group_create: schemas.GroupCreate, coach_id: int) -> models.Gro
                             sunday_start=sunday_start, sunday_end=sunday_end)
     db_group.save(force_insert=True)
     return db_group
+
+
+def set_days_for_group(db_group: models.Group, days: list[schemas.Time | None]):
+    if days[0] is not None:
+        db_group.monday_start = days[0].start
+        db_group.monday_end = days[0].end
+    if days[1] is not None:
+        db_group.tuesday_start = days[1].start
+        db_group.tuesday_end = days[1].end
+    if days[2] is not None:
+        db_group.wednesday_start = days[2].start
+        db_group.wednesday_end = days[2].end
+    if days[3] is not None:
+        db_group.thursday_start = days[3].start
+        db_group.thursday_end = days[3].end
+    if days[4] is not None:
+        db_group.friday_start = days[4].start
+        db_group.friday_end = days[4].end
+    if days[5] is not None:
+        db_group.saturday_start = days[5].start
+        db_group.saturday_end = days[5].end
+    if days[6] is not None:
+        db_group.sunday_start = days[6].start
+        db_group.sunday_end = days[6].end
