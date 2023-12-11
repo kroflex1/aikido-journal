@@ -21,18 +21,18 @@ def set_new_price_for_group(group_name: str, price: int):
 def set_new_parameters(group_name: str, group_change: schemas.GroupChange) -> models.Group:
     db_group = get_group_by_name(group_name)
     if group_change.price is not None:
-        db_group.price = group_change.new_price
+        db_group.price = group_change.price
         db_group.save()
     if group_change.days is not None:
-        set_days_for_group(db_group, group_change.new_days)
+        set_days_for_group(db_group, group_change.days)
         db_group.save()
     if group_change.name is not None and group_name != group_change.name:
         children = list(db_group.children)
         for child in children:
             child.group_name = None
             child.save()
-        models.Group.update(name=group_change.new_name).where(models.Group.name == group_name).execute()
-        db_group = get_group_by_name(group_change.new_name)
+        models.Group.update(name=group_change.name).where(models.Group.name == group_name).execute()
+        db_group = get_group_by_name(group_change.name)
         for child in children:
             child.group_name = db_group
             child.save()
