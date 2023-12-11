@@ -27,9 +27,9 @@ class GroupCreate(BaseModel):
 
 
 class GroupChange(BaseModel):
-    new_name: str | None
-    new_price: int | None
-    new_days: list[Time | None] | None = Field(min_items=7, max_items=7)
+    name: str | None
+    price: int | None
+    days: list[Time | None] | None = Field(min_items=7, max_items=7)
 
 
 class GroupInf(GroupCreate):
