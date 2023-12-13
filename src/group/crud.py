@@ -102,24 +102,23 @@ def create_group(group_create: schemas.GroupCreate, coach_id: int) -> models.Gro
 
 
 def set_days_for_group(db_group: models.Group, days: list[schemas.Time | None]):
-    if days[0] is not None:
-        db_group.monday_start = days[0].start
-        db_group.monday_end = days[0].end
-    if days[1] is not None:
-        db_group.tuesday_start = days[1].start
-        db_group.tuesday_end = days[1].end
-    if days[2] is not None:
-        db_group.wednesday_start = days[2].start
-        db_group.wednesday_end = days[2].end
-    if days[3] is not None:
-        db_group.thursday_start = days[3].start
-        db_group.thursday_end = days[3].end
-    if days[4] is not None:
-        db_group.friday_start = days[4].start
-        db_group.friday_end = days[4].end
-    if days[5] is not None:
-        db_group.saturday_start = days[5].start
-        db_group.saturday_end = days[5].end
-    if days[6] is not None:
-        db_group.sunday_start = days[6].start
-        db_group.sunday_end = days[6].end
+    db_group.monday_start = days[0].start if days[0] is not None else None
+    db_group.monday_end = days[0].end if days[0] is not None else None
+
+    db_group.tuesday_start = days[1].start if days[1] is not None else None
+    db_group.tuesday_end = days[1].end if days[1] is not None else None
+
+    db_group.wednesday_start = days[2].start if days[2] is not None else None
+    db_group.wednesday_end = days[2].end if days[2] is not None else None
+
+    db_group.thursday_start = days[3].start if days[3] is not None else None
+    db_group.thursday_end = days[3].end if days[3] is not None else None
+
+    db_group.friday_start = days[4].start if days[4] is not None else None
+    db_group.friday_end = days[4].end if days[4] is not None else None
+
+    db_group.saturday_start = days[5].start if days[5] is not None else None
+    db_group.saturday_end = days[5].end if days[5] is not None else None
+
+    db_group.sunday_start = days[6].start if days[6] is not None else None
+    db_group.sunday_end = days[6].end if days[6] is not None else None
