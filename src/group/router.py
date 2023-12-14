@@ -164,6 +164,7 @@ def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
     times = get_days_as_list_from_group_model(db_group)
     for i in range(7):
         schedule.append(schemas.DayInf(date=current_day, is_training=times[i] is not None))
+        current_day = current_day + timedelta(days=1)
 
     return schemas.Attendance(group_name=db_group.name, children_attendance=children_attendance, schedule=schedule)
 
