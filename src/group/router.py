@@ -1,6 +1,7 @@
+from datetime import date, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Body
 from fastapi import Depends, HTTPException
 
 from src.auth import models
@@ -9,7 +10,8 @@ from src.child import crud as child_crud
 from src.child import schemas as child_schemas
 from src.dependencies import get_db
 from . import crud, schemas
-from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema
+from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema, \
+    convert_child_model_to_child_attendance_inf_schema
 
 router = APIRouter(
     prefix="/groups",
@@ -116,3 +118,62 @@ async def set_new_parameters_for_group(group_name: str, new_group_parameters: sc
                             detail="There is no group with this name")
     db_group = crud.set_new_parameters(group_name, new_group_parameters)
     return convert_group_model_to_schema(db_group)
+
+
+@router.post("/{group_name}/fill_attendance/{start_day}", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK,
+             response_model=schemas.Attendance)
+async def fill_attendance(group_name: str, start_date: date, attendance_create: schemas.AttendanceCreate,
+                          coach: Annotated[models.User, Depends(is_coach)]):
+    db_group = crud.get_group_by_name(group_name)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    group_schema = convert_group_model_to_schema(db_group)
+    for child_attendance in attendance_create.children_attendance:
+        for day_inf in child_attendance.attendance:
+            mark_child_visit(group_schema, child_attendance.id, day_inf)
+    return get_attendance(db_group.name, start_date=start_date)
+
+
+@router.post("/{group_name}/get_attendance/{start_date}", dependencies=[Depends(get_db)],
+             status_code=status.HTTP_200_OK, response_model=schemas.Attendance)
+async def get_attendance_for_group(group_name: str, start_date: date,
+                                   coach: Annotated[models.User, Depends(is_coach)]):
+    return get_attendance(group_name, start_date)
+
+
+def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
+    db_group = crud.get_group_by_name(group_name)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+
+    children_attendance = []
+    for db_child in list(db_group.children):
+        child_attendance = []
+        current_day = start_date
+        for i in range(7):
+            is_training = child_crud.is_visit_at_date(db_child.id, current_day)
+            child_attendance.append(schemas.DayInf(date=current_day, is_training=is_training))
+            current_day = current_day + timedelta(days=1)
+        children_attendance.append(convert_child_model_to_child_attendance_inf_schema(db_child, child_attendance))
+
+    schedule = []
+    current_day = start_date
+    times = get_days_as_list_from_group_model(db_group)
+    for i in range(7):
+        schedule.append(schemas.DayInf(date=current_day, is_training=times[i] is not None))
+
+    return schemas.Attendance(group_name=db_group.name, children_attendance=children_attendance, schedule=schedule)
+
+
+def mark_child_visit(group: schemas.GroupInf, child_id: int, visit_inf: schemas.DayInf):
+    day_of_week = date.weekday()
+    if group.days[day_of_week] is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"The group has no classes on {day_of_week + 1} day of the week")
+    if visit_inf.is_training:
+        child_crud.mark_visit(child_id=child_id, date_visit=visit_inf.date)
+    else:
+        child_crud.remove_visit(child_id=child_id, date_visit=visit_inf.date)

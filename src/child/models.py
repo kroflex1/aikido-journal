@@ -16,3 +16,13 @@ class Child(peewee.Model):
     class Meta:
         database = db
         constraints = [peewee.SQL('UNIQUE (name, surname, patronymic)')]
+
+
+class ChildAttendance(peewee.Model):
+    child = peewee.ForeignKeyField(Child, backref="visits")
+    date_visit = peewee.DateField()
+
+    class Meta:
+        database = db
+        primary_key = False
+        db_table = "child_attendance"

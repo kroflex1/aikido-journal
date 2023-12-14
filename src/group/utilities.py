@@ -1,6 +1,8 @@
 from . import models, schemas
 from src.child import crud as child_crud
 from src.child import schemas as child_schemas
+from src.child import models as child_models
+from datetime import date
 
 
 def convert_group_model_to_schema(db_group: models.Group) -> schemas.GroupInf:
@@ -15,6 +17,16 @@ def convert_group_model_to_schema(db_group: models.Group) -> schemas.GroupInf:
         db_child in children_at_group]
     return schemas.GroupInf(name=db_group.name, price=db_group.price, coach_id=db_group.coach.id,
                             days=get_days_as_list_from_group_model(db_group), children=children_schemas)
+
+
+def convert_child_model_to_child_attendance_inf_schema(db_child: child_models.Child,
+                                                       attendance: list[schemas.DayInf]) -> schemas.ChildVisitInf:
+    child_schema = schemas.ChildVisitInf(id=db_child.id, name=db_child.name, surname=db_child.surname,
+                                         patronymic=db_child.patronymic,
+                                         parent_id=db_child.parent_id,
+                                         group_name_id=db_child.group_name_id,
+                                         attendance=attendance)
+    return child_schema
 
 
 def get_days_as_list_from_group_model(group: models.Group) -> list[schemas.Time]:

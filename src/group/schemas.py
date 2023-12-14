@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any
 
 import peewee
@@ -35,3 +35,21 @@ class GroupChange(BaseModel):
 class GroupInf(GroupCreate):
     coach_id: int
     children: list[child_schemas.Child]
+
+
+class DayInf(BaseModel):
+    date: date
+    is_training: bool
+
+
+class ChildVisitInf(child_schemas.Child):
+    attendance: list[DayInf]
+
+
+class AttendanceCreate(BaseModel):
+    children_attendance: list[ChildVisitInf]
+
+
+class Attendance(AttendanceCreate):
+    group_name: str
+    schedule: list[DayInf] = Field(min_items=7, max_items=7)

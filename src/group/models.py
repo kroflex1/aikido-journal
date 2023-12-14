@@ -25,3 +25,5 @@ class Group(peewee.Model):
 
     class Meta:
         database = db
+
+

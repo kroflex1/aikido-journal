@@ -12,12 +12,6 @@ def get_groups_that_led_by_coach(coach_db: user_models.User) -> list[models.Grou
     return [group for group in list(coach_db.groups)]
 
 
-def set_new_price_for_group(group_name: str, price: int):
-    db_group = get_group_by_name(group_name)
-    db_group.price = price
-    db_group.save()
-
-
 def set_new_parameters(group_name: str, group_change: schemas.GroupChange) -> models.Group:
     db_group = get_group_by_name(group_name)
     if group_change.price is not None:

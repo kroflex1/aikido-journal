@@ -15,6 +15,7 @@ database.db.connect()
 database.db.create_tables([auth_models.User])
 database.db.create_tables([group_models.Group])
 database.db.create_tables([child_models.Child])
+database.db.create_tables([child_models.ChildAttendance])
 database.db.close()
 
 app = FastAPI()

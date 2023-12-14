@@ -28,3 +28,4 @@ class Child(ChildCreate):
     class Config:
         orm_mode = True
         getter_dict = PeeweeGetterDict
+

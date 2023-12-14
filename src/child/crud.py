@@ -1,4 +1,7 @@
+from fastapi import HTTPException, status
+
 from . import schemas, models
+from datetime import datetime, date
 
 
 def create_child(child: schemas.ChildCreate) -> models.Child:
@@ -12,11 +15,12 @@ def get_all_children() -> list[models.Child]:
 
 
 def get_children_at_group(group_name: str) -> list[models.Child]:
-    return [child for child in models.Child.select().where(models.Child.group_name== group_name)]
+    return [child for child in models.Child.select().where(models.Child.group_name == group_name)]
 
 
 def get_children_without_parent() -> list[models.Child]:
     return [child for child in models.Child.select().where(models.Child.parent == None)]
+
 
 def get_children_without_group() -> list[models.Child]:
     return [child for child in models.Child.select().where(models.Child.group_name == None)]
@@ -39,3 +43,35 @@ def get_child_by_name(name: str, surname: str, patronymic: str) -> models.Child 
 def get_child_by_id(id: int) -> models.Child | None:
     child_db = models.Child.get_or_none(models.Child.id == id)
     return child_db
+
+
+def mark_visit(child_id: int, date_visit: date) -> models.ChildAttendance:
+    child_db = get_child_by_id(child_id)
+    if child_db is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+
+    db_attendance = models.ChildAttendance(child=child_db, date_visit=date_visit)
+    db_attendance.save(force_insert=True)
+    return db_attendance
+
+
+def remove_visit(child_id: int, date_visit: date):
+    child_db = get_child_by_id(child_id)
+    if child_db is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+
+    q = models.ChildAttendance.delete().where(
+        (models.ChildAttendance.date_visit == date_visit) & (models.ChildAttendance.child == child_db))
+    q.execute()
+
+
+def is_visit_at_date(child_id: int, date: date):
+    child_db = get_child_by_id(child_id)
+    if child_db is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    db_attendance = models.ChildAttendance.get_or_none(
+        (models.ChildAttendance.child == child_db) & (models.ChildAttendance.date_visit == date))
+    return db_attendance is not None
