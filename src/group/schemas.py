@@ -39,7 +39,7 @@ class GroupInf(GroupCreate):
 
 class DayInf(BaseModel):
     date: date
-    is_training: bool
+    is_training: bool | None
 
 
 class ChildVisitInf(child_schemas.Child):

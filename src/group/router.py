@@ -142,18 +142,22 @@ async def get_attendance_for_group(group_name: str, start_date: date,
                                    coach: Annotated[models.User, Depends(is_coach)]):
     return get_attendance(group_name, start_date)
 
+
 def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
     db_group = crud.get_group_by_name(group_name)
     if db_group is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no group with this name")
+    group_schema = convert_group_model_to_schema(db_group)
 
     children_attendance = []
     for db_child in list(db_group.children):
         child_attendance = []
         current_day = start_date
         for i in range(7):
-            is_training = child_crud.is_visit_at_date(db_child.id, current_day)
+            is_training = None
+            if group_schema.days[date.weekday(current_day)] is not None:
+                is_training = child_crud.is_visit_at_date(db_child.id, current_day)
             child_attendance.append(schemas.DayInf(date=current_day, is_training=is_training))
             current_day = current_day + timedelta(days=1)
         children_attendance.append(convert_child_model_to_child_attendance_inf_schema(db_child, child_attendance))
@@ -170,7 +174,7 @@ def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
 
 def mark_child_visit(group: schemas.GroupInf, child_id: int, visit_inf: schemas.DayInf):
     day_of_week = date.weekday(visit_inf.date)
-    if group.days[day_of_week] is None:
+    if group.days[day_of_week] is None and visit_inf.is_training is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"The group has no classes on {day_of_week + 1} day of the week")
     if visit_inf.is_training:
