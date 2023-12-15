@@ -28,6 +28,8 @@ def get_children_without_group() -> list[models.Child]:
 
 def remove_child(id: int):
     db_child = get_child_by_id(id)
+    qry = models.ChildAttendance.delete().where(models.ChildAttendance.child_id == db_child.id)
+    qry.execute()
     db_child.delete_instance()
 
 
