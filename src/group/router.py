@@ -120,7 +120,7 @@ async def set_new_parameters_for_group(group_name: str, new_group_parameters: sc
     return convert_group_model_to_schema(db_group)
 
 
-@router.post("/{group_name}/fill_attendance/{start_day}", dependencies=[Depends(get_db)],
+@router.post("/{group_name}/fill_attendance/{start_date}", dependencies=[Depends(get_db)],
              status_code=status.HTTP_200_OK,
              response_model=schemas.Attendance)
 async def fill_attendance(group_name: str, start_date: date, attendance_create: schemas.AttendanceCreate,
