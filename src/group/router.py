@@ -142,7 +142,6 @@ async def get_attendance_for_group(group_name: str, start_date: date,
                                    coach: Annotated[models.User, Depends(is_coach)]):
     return get_attendance(group_name, start_date)
 
-
 def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
     db_group = crud.get_group_by_name(group_name)
     if db_group is None:
@@ -170,7 +169,7 @@ def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
 
 
 def mark_child_visit(group: schemas.GroupInf, child_id: int, visit_inf: schemas.DayInf):
-    day_of_week = date.weekday()
+    day_of_week = date.weekday(visit_inf.date)
     if group.days[day_of_week] is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"The group has no classes on {day_of_week + 1} day of the week")
