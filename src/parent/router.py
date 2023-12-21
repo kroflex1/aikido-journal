@@ -94,11 +94,18 @@ async def get_children_schedule(parent: Annotated[user_models.User, Depends(is_p
     result = []
     db_children = crud.get_children(parent.id)
     for db_child in db_children:
-        db_group = group_crud.get_group_by_name(db_child.group_name_id)
-        schedule = group_utilities.get_days_as_list_from_group_model(db_group)
+        schedule = None
+        price = None
+        group_name = None
+        if db_child.group_name_id is not None:
+            db_group = group_crud.get_group_by_name(db_child.group_name_id)
+            schedule = group_utilities.get_days_as_list_from_group_model(db_group)
+            price = db_group.price
+            group_name = db_group.name
+
         result.append(
             schemas.ChildSchedule(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
-                                  group_name=db_group.name, group_price=db_group.price, schedule=schedule))
+                                  group_name=group_name, group_price=price, schedule=schedule))
     return result
 
 
