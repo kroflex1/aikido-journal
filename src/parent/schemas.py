@@ -41,5 +41,5 @@ class ChildAttendance(BaseModel):
     name: str = Field(examples=["Valera"])
     surname: str = Field(examples=["Tereshkov"])
     patronymic: str | None = Field(examples=["Maximovich"])
-    attendance: group_schemas.ChildVisitInf | None
-    schedule: list[group_schemas.DayInf] | None 
+    attendance: list[group_schemas.DayInf] | None
+    schedule: list[group_schemas.DayInf] | None

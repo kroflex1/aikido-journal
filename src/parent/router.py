@@ -116,7 +116,7 @@ async def get_children_schedule(parent: Annotated[user_models.User, Depends(is_p
 
 
 @router.get("/get_children_attendance/{start_date}", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK, response_model=list[schemas.ChildAttendance])
+            status_code=status.HTTP_200_OK)
 async def get_children_attendance(start_date: date, parent: Annotated[user_models.User, Depends(is_parent)]):
     db_parent = user_crud.get_user_by_id(parent)
     if db_parent is None:
@@ -132,8 +132,9 @@ async def get_children_attendance(start_date: date, parent: Annotated[user_model
             group_attendance = get_attendance(db_group.name, start_date)
             schedule = group_attendance.schedule
             for child_attendance in group_attendance.children_attendance:
-                attendance = child_attendance
-                break
+                if db_child.id == child_attendance.id:
+                    attendance = child_attendance.attendance
+                    break
         result.append(
             schemas.ChildAttendance(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
                                     attendance=attendance, schedule=schedule))
