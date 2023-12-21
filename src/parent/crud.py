@@ -3,6 +3,7 @@ from fastapi import status
 from src.auth import crud as user_crud
 from src.child import crud as child_crud
 from src.auth import models as user_models
+from src.child import models as child_models
 
 
 def add_child_to_parent(parent_id: int, child_id: int) -> user_models.User:
@@ -20,6 +21,12 @@ def add_child_to_parent(parent_id: int, child_id: int) -> user_models.User:
     db_child.parent = db_parent
     db_child.save()
     return db_parent
+
+
+def get_children(parent_id: int) -> list[child_models.Child]:
+    db_parent = user_crud.get_user_by_id(parent_id)
+    db_children = list(db_parent.children)
+    return db_children
 
 
 def get_all_parents() -> list[user_models.User]:

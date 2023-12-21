@@ -1,8 +1,7 @@
-from enum import Enum
 from typing import Any
 
 import peewee
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from pydantic.v1.utils import GetterDict
 
 
