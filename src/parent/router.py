@@ -96,17 +96,16 @@ async def get_children_schedule(parent: Annotated[user_models.User, Depends(is_p
     for db_child in db_children:
         group_schema = None
         if db_child.group_name_id is not None:
-            group_schema = schemas.ChildGroupInf()
             db_group = group_crud.get_group_by_name(db_child.group_name_id)
             coach = db_group.coach
-
-            group_schema.group_name = db_group.name
-            group_schema.group_price = db_group.price
-            group_schema.coach_name = coach.name
-            group_schema.coach_surname = coach.surname
-            group_schema.coach_patronymic = coach.patronymic
-            group_schema.coach_phone_number = coach.phone_number
-            group_schema.schedule = group_utilities.get_days_as_list_from_group_model(db_group)
+            group_schema = schemas.ChildGroupInf(
+                group_name=db_group.name,
+                group_price=db_group.price,
+                coach_name=coach.name,
+                coach_surname=coach.surname,
+                coach_patronymic=coach.patronymic,
+                coach_phone_number=coach.phone_number,
+                schedule=group_utilities.get_days_as_list_from_group_model(db_group))
 
         result.append(
             schemas.ChildSchedule(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
