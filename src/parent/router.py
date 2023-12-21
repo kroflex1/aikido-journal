@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -9,6 +10,7 @@ from src.child import crud as child_crud
 from src.dependencies import get_db
 from src.group import crud as group_crud
 from src.group import utilities as group_utilities
+from src.group.router import get_attendance
 from src.group.router import is_coach
 from . import crud, schemas
 
@@ -85,7 +87,7 @@ async def add_child_to_parent(parent_id: int, child_id: int, coach: Annotated[us
 
 
 @router.get("/get_children_schedule", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK)
+            status_code=status.HTTP_200_OK, response_model=list[schemas.ChildSchedule])
 async def get_children_schedule(parent: Annotated[user_models.User, Depends(is_parent)]):
     db_parent = user_crud.get_user_by_id(parent)
     if db_parent is None:
@@ -110,6 +112,31 @@ async def get_children_schedule(parent: Annotated[user_models.User, Depends(is_p
         result.append(
             schemas.ChildSchedule(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
                                   group_inf=group_schema))
+    return result
+
+
+@router.get("/get_children_attendance/{start_date}", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, response_model=list[schemas.ChildAttendance])
+async def get_children_attendance(start_date: date, parent: Annotated[user_models.User, Depends(is_parent)]):
+    db_parent = user_crud.get_user_by_id(parent)
+    if db_parent is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no parent with this id")
+    result = []
+    db_children = crud.get_children(parent.id)
+    for db_child in db_children:
+        attendance = None
+        schedule = None
+        if db_child.group_name_id is not None:
+            db_group = group_crud.get_group_by_name(db_child.group_name_id)
+            group_attendance = get_attendance(db_group.name, start_date)
+            schedule = group_attendance.schedule
+            for child_attendance in group_attendance.children_attendance:
+                attendance = child_attendance
+                break
+        result.append(
+            schemas.ChildAttendance(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
+                                    attendance=attendance, schedule=schedule))
     return result
 
 
