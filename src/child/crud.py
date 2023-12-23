@@ -77,3 +77,11 @@ def is_visit_at_date(child_id: int, date: date):
     db_attendance = models.ChildAttendance.get_or_none(
         (models.ChildAttendance.child == child_db) & (models.ChildAttendance.date_visit == date))
     return db_attendance is not None
+
+
+def get_number_of_visits(child_id: int) -> int:
+    child_db = get_child_by_id(child_id)
+    if child_db is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    return len(list(child_db.visits))

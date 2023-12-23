@@ -9,13 +9,13 @@ from src.config import SECRET_KEY
 class TokenManager:
     __SECRET_KEY = SECRET_KEY
     __ALGORITHM = "HS256"
-    __ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    __ACCESS_TOKEN_EXPIRE_DAYS = 30
     REFRESH_TOKEN_EXPIRE_DAYS = 60
 
     @staticmethod
     def create_token(user_id: int, user_role: str):
         to_encode = {"user_id": str(user_id), "user_role": str(user_role),
-                     "exp": datetime.utcnow() + timedelta(minutes=TokenManager.__ACCESS_TOKEN_EXPIRE_MINUTES)}
+                     "exp": datetime.utcnow() + timedelta(days=TokenManager.__ACCESS_TOKEN_EXPIRE_DAYS)}
         encoded_jwt = jwt.encode(to_encode, TokenManager.__SECRET_KEY, algorithm=TokenManager.__ALGORITHM)
         return encoded_jwt
 

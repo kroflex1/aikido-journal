@@ -140,6 +140,17 @@ async def get_children_attendance(start_date: date, parent: Annotated[user_model
                                     attendance=attendance, schedule=schedule))
     return result
 
+@router.get("/me", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, response_model=schemas.Parent)
+async def get_children_attendance( parent: Annotated[user_models.User, Depends(is_parent)]):
+    db_parent = user_crud.get_user_by_id(parent)
+    if db_parent is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no parent with this id")
+    return db_parent
+
+
+
 
 @router.get("/all", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, response_model=list[schemas.Parent])
