@@ -157,7 +157,7 @@ async def get_information_about_me(parent: Annotated[user_models.User, Depends(i
                                                     parent_id=db_child.parent_id,
                                                     group_name_id=db_child.group_name_id))
     return schemas.ParentInf(phone_number=db_parent.phone_number, name=db_parent.name, surname=db_parent.surname,
-                             patronymic=db_parent.surname,
+                             patronymic=db_parent.patronymic,
                              payment_arrears=payment_arrears, children=children_schemas)
 
 
