@@ -94,5 +94,5 @@ def get_payment_arrears(child_id: int) -> int:
                             detail="There is no child with this id")
     payment_arrears = 0
     for visit in list(child_db.visits):
-        payment_arrears += visit.rpice
+        payment_arrears += visit.price
     return payment_arrears
