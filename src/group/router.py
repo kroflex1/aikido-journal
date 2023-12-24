@@ -46,8 +46,7 @@ async def get_information_about_group(group_name: str, coach: Annotated[models.U
     if db_group is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no group with this name")
-    return schemas.GroupInf(name=db_group.name, price=db_group.price, coach_id=coach.id,
-                            days=get_days_as_list_from_group_model(db_group))
+    return convert_group_model_to_schema(db_group)
 
 
 @router.get("/leads", dependencies=[Depends(get_db)],
