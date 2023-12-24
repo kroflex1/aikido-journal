@@ -178,6 +178,6 @@ def mark_child_visit(group: schemas.GroupInf, child_id: int, visit_inf: schemas.
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"The group has no classes on {day_of_week + 1} day of the week")
     if visit_inf.is_training:
-        child_crud.mark_visit(child_id=child_id, date_visit=visit_inf.date)
+        child_crud.mark_visit(child_id=child_id, date_visit=visit_inf.date, price=group.price)
     else:
         child_crud.remove_visit(child_id=child_id, date_visit=visit_inf.date)

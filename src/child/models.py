@@ -21,6 +21,7 @@ class Child(peewee.Model):
 class ChildAttendance(peewee.Model):
     child = peewee.ForeignKeyField(Child, backref="visits")
     date_visit = peewee.DateField()
+    price = peewee.IntegerField()
 
     class Meta:
         database = db

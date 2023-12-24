@@ -12,6 +12,7 @@ from src.group import crud as group_crud
 from src.group import utilities as group_utilities
 from src.group.router import get_attendance
 from src.group.router import is_coach
+from src.child import schemas as child_schemas
 from . import crud, schemas
 
 router = APIRouter(
@@ -140,16 +141,26 @@ async def get_children_attendance(start_date: date, parent: Annotated[user_model
                                     attendance=attendance, schedule=schedule))
     return result
 
+
 @router.get("/me", dependencies=[Depends(get_db)],
-            status_code=status.HTTP_200_OK, response_model=schemas.Parent)
-async def get_children_attendance( parent: Annotated[user_models.User, Depends(is_parent)]):
+            status_code=status.HTTP_200_OK, response_model=schemas.ParentInf)
+async def get_information_about_me(parent: Annotated[user_models.User, Depends(is_parent)]):
     db_parent = user_crud.get_user_by_id(parent)
     if db_parent is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no parent with this id")
-    return db_parent
-
-
+    db_children = list(db_parent.children)
+    children_schemas = []
+    payment_arrears = 0
+    for db_child in db_children:
+        payment_arrears += child_crud.get_payment_arrears(db_child.id)
+        children_schemas.append(child_schemas.Child(name=db_child.name, surname=db_child.surname,
+                                                    patronymic=db_child.patronymic, id=db_child.id,
+                                                    parent_id=db_child.parent_id,
+                                                    group_name_id=db_child.group_name_id))
+    return schemas.ParentInf(phone_number=db_parent.phone_number, name=db_parent.name, surname=db_parent.surname,
+                             patronymic=db_parent.surname,
+                             payment_arrears=payment_arrears, children=children_schemas)
 
 
 @router.get("/all", dependencies=[Depends(get_db)],

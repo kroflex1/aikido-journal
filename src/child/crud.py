@@ -47,13 +47,13 @@ def get_child_by_id(id: int) -> models.Child | None:
     return child_db
 
 
-def mark_visit(child_id: int, date_visit: date) -> models.ChildAttendance:
+def mark_visit(child_id: int, date_visit: date, price: int) -> models.ChildAttendance:
     child_db = get_child_by_id(child_id)
     if child_db is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no child with this id")
 
-    db_attendance = models.ChildAttendance(child=child_db, date_visit=date_visit)
+    db_attendance = models.ChildAttendance(child=child_db, date_visit=date_visit, price=price)
     db_attendance.save(force_insert=True)
     return db_attendance
 
@@ -85,3 +85,14 @@ def get_number_of_visits(child_id: int) -> int:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no child with this id")
     return len(list(child_db.visits))
+
+
+def get_payment_arrears(child_id: int) -> int:
+    child_db = get_child_by_id(child_id)
+    if child_db is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no child with this id")
+    payment_arrears = 0
+    for visit in list(child_db.visits):
+        payment_arrears += visit.rpice
+    return payment_arrears

@@ -20,6 +20,15 @@ class Parent(user_schemas.User):
     children: list[child_schemas.Child] | None
 
 
+class ParentInf(BaseModel):
+    phone_number: str = Field("+79127564382")
+    name: str = Field("Vova")
+    surname: str = Field("Bersov")
+    patronymic: str | None = Field(default=None, examples=["Alexanrov"])
+    payment_arrears: int
+    children: list[child_schemas.Child] | None
+
+
 class ChildGroupInf(BaseModel):
     group_name: str = Field(examples=["HF-101"])
     group_price: int = Field(examples=[250])
