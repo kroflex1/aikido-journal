@@ -149,11 +149,9 @@ async def get_information_about_me(parent: Annotated[user_models.User, Depends(i
     if db_parent is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no parent with this id")
-    db_children = list(db_parent.children)
+    payment_arrears = crud.calculate_payment_arrears(db_parent.id)
     children_schemas = []
-    payment_arrears = 0
-    for db_child in db_children:
-        payment_arrears += child_crud.get_payment_arrears(db_child.id)
+    for db_child in list(db_parent.children):
         children_schemas.append(child_schemas.Child(name=db_child.name, surname=db_child.surname,
                                                     patronymic=db_child.patronymic, id=db_child.id,
                                                     parent_id=db_child.parent_id,

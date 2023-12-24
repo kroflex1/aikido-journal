@@ -31,3 +31,11 @@ def get_children(parent_id: int) -> list[child_models.Child]:
 
 def get_all_parents() -> list[user_models.User]:
     return [parent for parent in user_models.User.select().where(user_models.User.role == "parent")]
+
+
+def calculate_payment_arrears(parent_id: int) -> int:
+    result = 0
+    db_parent = user_crud.get_user_by_id(parent_id)
+    for db_child in list(db_parent.children):
+        result += child_crud.get_payment_arrears(db_child.id)
+    return result
