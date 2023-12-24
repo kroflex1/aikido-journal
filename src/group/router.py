@@ -9,6 +9,7 @@ from src.auth.router import get_current_user
 from src.child import crud as child_crud
 from src.child import schemas as child_schemas
 from src.dependencies import get_db
+from src.parent import crud as parent_crud
 from . import crud, schemas
 from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema, \
     convert_child_model_to_child_attendance_inf_schema
@@ -140,6 +141,25 @@ async def fill_attendance(group_name: str, start_date: date, attendance_create: 
 async def get_attendance_for_group(group_name: str, start_date: date,
                                    coach: Annotated[models.User, Depends(is_coach)]):
     return get_attendance(group_name, start_date)
+
+
+@router.get("/get_payment_arrears", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, response_model=list[schemas.ParentPaymentArrears])
+async def get_list_of_parents_who_payment_arrears(coach: Annotated[models.User, Depends(is_coach)]):
+    groups = crud.get_groups_that_led_by_coach(coach)
+    db_parents = set()
+    for group_inf in groups:
+        db_group = crud.get_group_by_name(group_inf.name)
+        for db_child in list(db_group.children):
+            db_parents.add(db_child.parent)
+    result = []
+    for db_parent in db_parents:
+        result.append(
+            schemas.ParentPaymentArrears(id=db_parent.id, name=db_parent.name, surname=db_parent.surname,
+                                         patronymic=db_parent.patronymic,
+                                         phone_number=db_parent.phone_number,
+                                         payment_arrears=parent_crud.calculate_payment_arrears(db_parent.id)))
+    return result
 
 
 def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:

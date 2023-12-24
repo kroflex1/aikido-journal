@@ -53,3 +53,12 @@ class AttendanceCreate(BaseModel):
 class Attendance(AttendanceCreate):
     group_name: str
     schedule: list[DayInf] = Field(min_items=7, max_items=7)
+
+
+class ParentPaymentArrears(BaseModel):
+    id: int
+    name: str = Field(examples=["Ellen"])
+    surname: str = Field(examples=["Hartley"])
+    patronymic: str| None = Field(examples=[""])
+    phone_number: str = Field("+79127564382")
+    payment_arrears: int
