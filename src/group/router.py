@@ -151,7 +151,8 @@ async def get_list_of_parents_who_payment_arrears(coach: Annotated[models.User, 
     for group_inf in groups:
         db_group = crud.get_group_by_name(group_inf.name)
         for db_child in list(db_group.children):
-            db_parents.add(db_child.parent)
+            if db_child.parent is not None:
+                db_parents.add(db_child.parent)
     result = []
     for db_parent in db_parents:
         result.append(
