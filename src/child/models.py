@@ -25,5 +25,5 @@ class ChildAttendance(peewee.Model):
 
     class Meta:
         database = db
-        primary_key = peewee.CompositeKey('child', 'date_visit')
+        primary_key = False
         db_table = "child_attendance"
