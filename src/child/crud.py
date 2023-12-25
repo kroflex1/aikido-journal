@@ -53,7 +53,7 @@ def mark_visit(child_id: int, date_visit: date, price: int) -> models.ChildAtten
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is no child with this id")
     db_attendance = models.ChildAttendance.get_or_none(
-        (models.ChildAttendance.id == id) & (models.ChildAttendance.date_visit == date_visit))
+        (models.ChildAttendance.child == child_id) & (models.ChildAttendance.date_visit == date_visit))
     if db_attendance is not None:
         remove_visit(child_id, date_visit)
     db_attendance = models.ChildAttendance(child=child_db, date_visit=date_visit, price=price)
