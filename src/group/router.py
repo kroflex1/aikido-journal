@@ -236,7 +236,7 @@ def mark_child_visit(group: schemas.GroupInf, child_id: int, visit_inf: schemas.
     if group.days[day_of_week] is None and visit_inf.is_training is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"The group has no classes on {day_of_week + 1} day of the week")
-    if datetime.now() < visit_inf.date:
+    if datetime.now().date() < visit_inf.date:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"You cannot mark a visit on a day that has not yet arrived")
     if visit_inf.is_training:
