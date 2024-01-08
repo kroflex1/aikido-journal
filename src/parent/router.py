@@ -142,6 +142,9 @@ async def get_children_attendance(start_date: date, parent: Annotated[user_model
     return result
 
 
+
+
+
 @router.get("/me", dependencies=[Depends(get_db)],
             status_code=status.HTTP_200_OK, response_model=schemas.ParentInf)
 async def get_information_about_me(parent: Annotated[user_models.User, Depends(is_parent)]):

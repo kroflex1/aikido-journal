@@ -1,7 +1,8 @@
+from calendar import monthrange
 from datetime import date, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, status, Body
+from fastapi import APIRouter, status
 from fastapi import Depends, HTTPException
 
 from src.auth import models
@@ -11,6 +12,7 @@ from src.child import schemas as child_schemas
 from src.dependencies import get_db
 from src.parent import crud as parent_crud
 from . import crud, schemas
+from .schemas import StartDate
 from .utilities import get_days_as_list_from_group_model, convert_group_model_to_schema, \
     convert_child_model_to_child_attendance_inf_schema
 
@@ -137,10 +139,17 @@ async def fill_attendance(group_name: str, start_date: date, attendance_create: 
 
 
 @router.post("/{group_name}/get_attendance/{start_date}", dependencies=[Depends(get_db)],
-             status_code=status.HTTP_200_OK, response_model=schemas.Attendance)
-async def get_attendance_for_group(group_name: str, start_date: date,
-                                   coach: Annotated[models.User, Depends(is_coach)]):
+            status_code=status.HTTP_200_OK, response_model=schemas.Attendance)
+async def get_attendance_for_week(group_name: str, start_date: date,
+                                  coach: Annotated[models.User, Depends(is_coach)]):
     return get_attendance(group_name, start_date)
+
+
+@router.post("/{group_name}/get_attendance_for_month", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK, response_model=schemas.Attendance)
+async def get_attendance_for_month(group_name: str, start_date: StartDate,
+                                   coach: Annotated[models.User, Depends(is_coach)]):
+    return get_attendance_inf_for_month(group_name, start_date.year, start_date.month)
 
 
 @router.get("/get_payment_arrears", dependencies=[Depends(get_db)],
@@ -187,6 +196,36 @@ def get_attendance(group_name: str, start_date: date) -> schemas.Attendance:
     times = get_days_as_list_from_group_model(db_group)
     for i in range(7):
         schedule.append(schemas.DayInf(date=current_day, is_training=times[i] is not None))
+        current_day = current_day + timedelta(days=1)
+
+    return schemas.Attendance(group_name=db_group.name, children_attendance=children_attendance, schedule=schedule)
+
+
+def get_attendance_inf_for_month(group_name: str, year: int, month_number: int) -> schemas.Attendance:
+    db_group = crud.get_group_by_name(group_name)
+    if db_group is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no group with this name")
+    group_schema = convert_group_model_to_schema(db_group)
+
+    children_attendance = []
+    for db_child in list(db_group.children):
+        child_attendance = []
+        current_day = date(year, month_number, 1)
+        number_of_days = monthrange(year, month_number)[1]
+        for i in range(number_of_days - 1):
+            is_training = None
+            if group_schema.days[date.weekday(current_day)] is not None:
+                is_training = child_crud.is_visit_at_date(db_child.id, current_day)
+            child_attendance.append(schemas.DayInf(date=current_day, is_training=is_training))
+            current_day = current_day + timedelta(days=1)
+        children_attendance.append(convert_child_model_to_child_attendance_inf_schema(db_child, child_attendance))
+
+    schedule = []
+    current_day = date(year, month_number, 1)
+    times = get_days_as_list_from_group_model(db_group)
+    for i in range(monthrange(year, month_number)[1] - 1):
+        schedule.append(schemas.DayInf(date=current_day, is_training=times[date.weekday(current_day)] is not None))
         current_day = current_day + timedelta(days=1)
 
     return schemas.Attendance(group_name=db_group.name, children_attendance=children_attendance, schedule=schedule)
