@@ -10,8 +10,9 @@ from src.child import crud as child_crud
 from src.dependencies import get_db
 from src.group import crud as group_crud
 from src.group import utilities as group_utilities
-from src.group.router import get_attendance
+from src.group.router import get_attendance, get_attendance_inf_for_month
 from src.group.router import is_coach
+from src.group.router import StartDate
 from src.child import schemas as child_schemas
 from . import crud, schemas
 
@@ -142,7 +143,30 @@ async def get_children_attendance(start_date: date, parent: Annotated[user_model
     return result
 
 
-
+@router.post("/get_children_attendance_for_month", dependencies=[Depends(get_db)],
+            status_code=status.HTTP_200_OK)
+async def get_children_attendance_for_month(start_date: StartDate, parent: Annotated[user_models.User, Depends(is_parent)]):
+    db_parent = user_crud.get_user_by_id(parent)
+    if db_parent is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="There is no parent with this id")
+    result = []
+    db_children = crud.get_children(parent.id)
+    for db_child in db_children:
+        attendance = None
+        schedule = None
+        if db_child.group_name_id is not None:
+            db_group = group_crud.get_group_by_name(db_child.group_name_id)
+            group_attendance = get_attendance_inf_for_month(db_group.name, start_date.year, start_date.month)
+            schedule = group_attendance.schedule
+            for child_attendance in group_attendance.children_attendance:
+                if db_child.id == child_attendance.id:
+                    attendance = child_attendance.attendance
+                    break
+        result.append(
+            schemas.ChildAttendance(name=db_child.name, surname=db_child.surname, patronymic=db_child.patronymic,
+                                    attendance=attendance, schedule=schedule))
+    return result
 
 
 @router.get("/me", dependencies=[Depends(get_db)],
